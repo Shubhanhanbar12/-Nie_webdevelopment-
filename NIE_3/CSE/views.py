@@ -22,12 +22,74 @@ def contacts(request):
 def basic(request):
     return render(request,'basic.html')
 
+# FBV
+
+from django.shortcuts import render, redirect, get_object_or_404
 
 from CSE.models import Student
+from CSE.forms import StudentForm
+
+#Create view
+
+def form(request):
+    
+    form = StudentForm
+    if request.method =="POST":
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('student')  
+
+    context = {'form': form}
+    return render(request, 'FBV/form.html', context) 
+
+
+
+#list view
 def student(request):
     students = Student.objects.all()
     context = {'students': students}
-    return render(request,'student.html',context)
+    return render(request,'FBV/student.html',context)
+
+#detail view
+def detail(request, id):
+	data = Student.objects.get(id = id)	
+	context = {'data':data}
+	return render(request,'FBV/detail.html', context)
+
+#Update view
+def update(request, id):
+	obj = get_object_or_404(Student, id =id)
+	form = StudentForm(request.POST or None, instance = obj)
+	data = Student.objects.get(id = id)
+	if form.is_valid():
+		form.save()
+		return redirect('CSE:student')
+
+	context = {'form':form, 'data':data}
+	return render(request,'FBV/update.html', context )
+
+#delete view
+
+def delete(request, id):
+	data = Student.objects.get(id = id)
+	context = {'data':data}
+	if request.method =='POST':
+		data.delete()
+		return redirect('CSE:student')
+	return render(request,'FBV/delete.html', context )
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # CBV
